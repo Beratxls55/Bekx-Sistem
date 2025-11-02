@@ -1,1 +1,26 @@
+name: M3U8 Otomatik Güncelleme Botu
 
+on:
+  schedule:
+    - cron: "0 * * * *"  # Her saat başı çalışır
+  workflow_dispatch:      # Elle çalıştırmak için buton ekler
+
+jobs:
+  update-m3u8:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Depoyu klonla
+        uses: actions/checkout@v4
+
+      - name: Güncel M3U8 linkini al
+        run: |
+           curl -s "https://www.tv8.com.tr/canli-yayin" | grep -o "https.*m3u8" > m3u8.txt
+          
+      - name: Değişiklikleri commit et
+        run: |
+          git config --global user.name "GitHub Actions Bot"
+          git config --global user.email "actions@github.com"
+          git add m3u8.txt
+          git commit -m "Güncel M3U8 linki alındı" || echo "Hiç değişiklik yok"
+          git push
